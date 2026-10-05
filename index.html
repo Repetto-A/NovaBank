@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NovaBanco — Banca Digital</title>
+  <!-- T03: FOUT prevention — sets data-theme before stylesheet parses -->
+  <script>
+    (function(){
+      try {
+        var t = localStorage.getItem('novabanco-theme') ||
+                (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+        document.documentElement.dataset.theme = t;
+      } catch(e) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- ══════════════════════════════════════════
+       SIDEBAR
+  ══════════════════════════════════════════ -->
+  <nav class="sidebar">
+
+    <div class="sidebar-logo">
+      <a class="logo-mark" href="#">
+        <div class="logo-icon">NB</div>
+        <span class="logo-text">Nova<span>Banco</span></span>
+      </a>
+    </div>
+
+    <div class="sidebar-nav">
+
+      <div class="nav-section-label" data-i18n="sidebar.principal">Principal</div>
+
+      <a class="nav-item active" data-view="dashboard"
+         onclick="navigate('dashboard'); return false;" href="#">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+          <rect x="3" y="3" width="7" height="7" rx="1"/>
+          <rect x="14" y="3" width="7" height="7" rx="1"/>
+          <rect x="3" y="14" width="7" height="7" rx="1"/>
+          <rect x="14" y="14" width="7" height="7" rx="1"/>
+        </svg>
+        <span data-i18n="nav.dashboard">Inicio</span>
+      </a>
+
+      <a class="nav-item" data-view="movimientos"
+         onclick="navigate('movimientos'); return false;" href="#">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+          <path d="M21 6H3M15 12H3M9 18H3"/>
+        </svg>
+        <span data-i18n="nav.movimientos">Consumos</span>
+      </a>
+
+      <a class="nav-item" data-view="beneficios"
+         onclick="navigate('beneficios'); return false;" href="#">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        </svg>
+        <span data-i18n="nav.beneficios">Beneficios</span>
+      </a>
+
+      <div class="nav-section-label" data-i18n="sidebar.cuenta">Cuenta</div>
+
+      <a class="nav-item" onclick="openModal(); return false;" href="#">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+          <polyline points="14 2 14 8 20 8"/>
+          <line x1="16" y1="13" x2="8" y2="13"/>
+          <line x1="16" y1="17" x2="8" y2="17"/>
+        </svg>
+        <span data-i18n="nav.resumen">Resumen</span>
+      </a>
+
+      <a class="nav-item" href="#">
+        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="3"/>
+          <path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/>
+        </svg>
+        <span data-i18n="nav.configuracion">Configuración</span>
+      </a>
+
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="user-pill">
+        <div class="avatar">DG</div>
+        <div class="user-info">
+          <div class="user-name">Diego García</div>
+          <div class="user-role" data-i18n="user.role">Caja de ahorro</div>
+        </div>
+      </div>
+    </div>
+
+  </nav>
+
+
+  <!-- ══════════════════════════════════════════
+       MAIN CONTENT
+  ══════════════════════════════════════════ -->
+  <div class="main-content">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <span class="topbar-title" id="topbar-title" data-i18n="nav.dashboard">Inicio</span>
+      <div class="topbar-actions">
+        <!-- T07: Language switcher -->
+        <div class="lang-toggle">
+          <span class="lang-btn active" data-lang="es" onclick="switchLocale('es')">ES</span>
+          <span class="lang-btn" data-lang="en" onclick="switchLocale('en')">EN</span>
+        </div>
+        <!-- T02: Theme toggle -->
+        <div class="icon-btn" id="theme-toggle-btn" title="Toggle theme" onclick="toggleTheme()"></div>
+        <div class="icon-btn notif-badge" title="Notificaciones">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+        </div>
+        <div class="icon-btn" title="Búsqueda">
+          <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+        </div>
+      </div>
+    </header>
+
+    <div class="page-wrapper">
+
+      <!-- ════════════════════════════════════
+           VIEW: DASHBOARD
+      ════════════════════════════════════ -->
+      <div class="view active" id="view-dashboard">
+
+        <h1 class="page-title" data-i18n="dashboard.greeting">Buenos días, Diego 👋</h1>
+        <p class="page-subtitle" id="dashboard-date"></p>
+
+        <!-- Balance hero -->
+        <div class="balance-hero">
+          <div class="balance-label" data-i18n="dashboard.balance_label">Saldo disponible · Caja de ahorro ARS</div>
+          <div class="balance-amount" id="balance-amount"></div>
+          <div class="balance-meta">
+            <span data-i18n="dashboard.last_movement">Último movimiento:</span>
+            <strong>Hoy — Mercado Pago $12.500</strong>
+          </div>
+          <div class="balance-hero-actions">
+            <button class="balance-btn" onclick="navigate('movimientos')">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M21 6H3M15 12H3M9 18H3"/>
+              </svg>
+              <span data-i18n="hero.ver_consumos">Ver consumos</span>
+            </button>
+            <button class="balance-btn" onclick="openModal()">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              <span data-i18n="hero.descargar_resumen">Descargar resumen</span>
+            </button>
+            <button class="balance-btn" onclick="navigate('beneficios')">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+              <span data-i18n="hero.ver_beneficios">Ver beneficios</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Quick actions -->
+        <div class="quick-actions-grid">
+          <div class="quick-action" onclick="navigate('movimientos')">
+            <div class="qa-icon">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M21 6H3M15 12H3M9 18H3"/>
+              </svg>
+            </div>
+            <span class="qa-label" data-i18n="qa.consumos">Mis consumos</span>
+          </div>
+          <div class="quick-action" onclick="openModal()">
+            <div class="qa-icon">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+            </div>
+            <span class="qa-label" data-i18n="qa.descargar">Descargar resumen</span>
+          </div>
+          <div class="quick-action" onclick="navigate('beneficios')">
+            <div class="qa-icon">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+              </svg>
+            </div>
+            <span class="qa-label" data-i18n="qa.beneficios">Beneficios</span>
+          </div>
+          <div class="quick-action">
+            <div class="qa-icon">
+              <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <line x1="12" y1="1" x2="12" y2="23"/>
+                <path d="M17 5H9.5a3.5 3.5 0 1 0 0 7h5a3.5 3.5 0 1 1 0 7H6"/>
+              </svg>
+            </div>
+            <span class="qa-label" data-i18n="qa.transferir">Transferir</span>
+          </div>
+        </div>
+
+        <!-- Dashboard grid -->
+        <div class="dashboard-grid">
+
+          <!-- Left: movimientos recientes -->
+          <div>
+            <div class="card">
+              <div class="section-header">
+                <span class="section-title" data-i18n="dashboard.recent_movements">Últimos movimientos</span>
+                <button class="btn btn-ghost"
+                        style="font-size:13px;padding:7px 12px"
+                        onclick="navigate('movimientos')"
+                        data-i18n="dashboard.see_all">
+                  Ver todos →
+                </button>
+              </div>
+              <div class="movement-list" id="recent-movements"></div>
+            </div>
+          </div>
+
+          <!-- Right: tarjeta + promos -->
+          <div>
+            <div class="widget-card">
+              <div class="widget-header">
+                <div class="widget-title" data-i18n="dashboard.my_card">Mi tarjeta</div>
+              </div>
+              <div class="widget-body">
+                <div class="tarjeta-visual">
+                  <div class="tarjeta-chip">💳</div>
+                  <div class="tarjeta-number">•••• •••• •••• 4821</div>
+                  <div class="tarjeta-footer">
+                    <div class="tarjeta-holder">
+                      <span>Titular</span>
+                      <strong>DIEGO GARCÍA</strong>
+                      <div class="tarjeta-vto">Vto. 09/28</div>
+                    </div>
+                    <div class="tarjeta-brand">VISA</div>
+                  </div>
+                </div>
+                <div style="margin-top:16px;display:flex;justify-content:space-between;align-items:center">
+                  <div>
+                    <div style="font-size:12px;color:var(--text-muted)" data-i18n="dashboard.card_limit">Límite disponible</div>
+                    <div style="font-size:18px;font-weight:700;margin-top:2px" id="tarjeta-limit"></div>
+                  </div>
+                  <span class="badge badge-success" data-i18n="dashboard.card_status">Al día</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="widget-card" style="margin-top:16px">
+              <div class="widget-header">
+                <div class="widget-title" data-i18n="dashboard.active_promos">Promos activas</div>
+              </div>
+              <div class="widget-body" style="padding-top:8px">
+                <div class="promo-pill" onclick="navigate('beneficios')">
+                  <span class="promo-emoji">🍔</span>
+                  <div class="promo-info">
+                    <div class="promo-title">30% OFF en Rappi</div>
+                    <div class="promo-sub">Válido hasta el 30 jun.</div>
+                  </div>
+                  <span class="badge badge-success">Activo</span>
+                </div>
+                <div class="promo-pill" onclick="navigate('beneficios')">
+                  <span class="promo-emoji">✈️</span>
+                  <div class="promo-info">
+                    <div class="promo-title">Puntos dobles en viajes</div>
+                    <div class="promo-sub">Todo julio 2026</div>
+                  </div>
+                  <span class="badge badge-info">Nuevo</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+      <!-- /view-dashboard -->
+
+
+      <!-- ════════════════════════════════════
+           VIEW: MOVIMIENTOS
+      ════════════════════════════════════ -->
+      <div class="view" id="view-movimientos">
+
+        <h1 class="page-title" data-i18n="mov.title">Consumos</h1>
+        <p class="page-subtitle" data-i18n="mov.subtitle">Historial de movimientos de tu cuenta</p>
+
+        <!-- Stats bar -->
+        <div class="stats-bar">
+          <div class="stats-bar-item">
+            <div class="stats-bar-label" data-i18n="mov.expenses">Gastos este mes</div>
+            <div class="stats-bar-value" id="stats-debits" style="color:var(--danger)"></div>
+          </div>
+          <div class="stats-bar-item">
+            <div class="stats-bar-label" data-i18n="mov.income">Ingresos este mes</div>
+            <div class="stats-bar-value" id="stats-credits" style="color:var(--success)"></div>
+          </div>
+          <div class="stats-bar-item">
+            <div class="stats-bar-label" data-i18n="mov.count">Movimientos</div>
+            <div class="stats-bar-value" id="stats-count"></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="filters-bar">
+            <input
+              type="text"
+              class="filter-input"
+              placeholder="🔍  Buscar transacción..."
+              data-i18n-placeholder="mov.search_placeholder"
+              oninput="filterMovements(this.value)"
+            />
+            <select class="filter-select" onchange="filterByCategory(this.value)">
+              <option value="" data-i18n="mov.all_categories">Todas las categorías</option>
+              <option value="Comidas" data-i18n="cat.comidas">Comidas</option>
+              <option value="Supermercado" data-i18n="cat.supermercado">Supermercado</option>
+              <option value="Entretenimiento" data-i18n="cat.entretenimiento">Entretenimiento</option>
+              <option value="Transporte" data-i18n="cat.transporte">Transporte</option>
+              <option value="Sueldo" data-i18n="cat.sueldo">Sueldo</option>
+              <option value="Tecnología" data-i18n="cat.tecnologia">Tecnología</option>
+            </select>
+            <select class="filter-select">
+              <option>Junio 2026</option>
+              <option>Mayo 2026</option>
+              <option>Abril 2026</option>
+            </select>
+            <button class="btn btn-secondary" style="margin-left:auto" onclick="openModal()">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              <span data-i18n="mov.download">Descargar resumen</span>
+            </button>
+          </div>
+
+          <table class="movements-table">
+            <thead>
+              <tr>
+                <th class="tx-icon-cell"></th>
+                <th data-i18n="mov.col_description">Descripción</th>
+                <th data-i18n="mov.col_category">Categoría</th>
+                <th data-i18n="mov.col_date">Fecha</th>
+                <th style="text-align:right" data-i18n="mov.col_amount">Monto</th>
+                <th style="text-align:center" data-i18n="mov.col_status">Estado</th>
+              </tr>
+            </thead>
+            <tbody id="movements-tbody"></tbody>
+          </table>
+        </div>
+
+      </div>
+      <!-- /view-movimientos -->
+
+
+      <!-- ════════════════════════════════════
+           VIEW: BENEFICIOS
+      ════════════════════════════════════ -->
+      <div class="view" id="view-beneficios">
+
+        <h1 class="page-title" data-i18n="ben.title">Beneficios exclusivos</h1>
+        <p class="page-subtitle" data-i18n="ben.subtitle">Descuentos y promos para vos por ser cliente NovaBanco</p>
+
+        <div class="beneficios-filter-bar">
+          <button class="btn btn-primary"   id="filter-todos"           onclick="filterBeneficios('todos')"           data-i18n="ben.filter_todos">Todos</button>
+          <button class="btn btn-secondary" id="filter-gastronomia"     onclick="filterBeneficios('gastronomia')"     data-i18n="ben.filter_gastronomia">🍔 Gastronomía</button>
+          <button class="btn btn-secondary" id="filter-viajes"          onclick="filterBeneficios('viajes')"          data-i18n="ben.filter_viajes">✈️ Viajes</button>
+          <button class="btn btn-secondary" id="filter-tech"            onclick="filterBeneficios('tech')"            data-i18n="ben.filter_tech">💻 Tecnología</button>
+          <button class="btn btn-secondary" id="filter-salud"           onclick="filterBeneficios('salud')"           data-i18n="ben.filter_salud">🏥 Salud</button>
+          <button class="btn btn-secondary" id="filter-entretenimiento" onclick="filterBeneficios('entretenimiento')" data-i18n="ben.filter_entretenimiento">🎬 Entretenimiento</button>
+        </div>
+
+        <div class="beneficios-grid" id="beneficios-grid"></div>
+
+      </div>
+      <!-- /view-beneficios -->
+
+    </div>
+    <!-- /page-wrapper -->
+
+  </div>
+  <!-- /main-content -->
+
+</div>
+<!-- /app-shell -->
+
+
+<!-- ══════════════════════════════════════════
+     MODAL: DESCARGAR RESUMEN
+══════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+
+    <!-- Step 1: selección de período -->
+    <div id="modal-form-content">
+      <div class="modal-icon">📄</div>
+      <div class="modal-title" data-i18n="modal.title">Descargar resumen</div>
+      <div class="modal-desc" data-i18n="modal.desc">
+        Seleccioná el período y el formato que querés descargar.
+      </div>
+      <div class="modal-options">
+        <label class="modal-option">
+          <input type="radio" name="periodo" value="junio" checked />
+          <div>
+            <div class="modal-option-label" data-i18n="modal.junio_label">Junio 2026</div>
+            <div class="modal-option-sub" data-i18n="modal.junio_sub">Del 1 al 22 de junio</div>
+          </div>
+        </label>
+        <label class="modal-option">
+          <input type="radio" name="periodo" value="mayo" />
+          <div>
+            <div class="modal-option-label" data-i18n="modal.mayo_label">Mayo 2026</div>
+            <div class="modal-option-sub" data-i18n="modal.mayo_sub">Mes completo — 38 movimientos</div>
+          </div>
+        </label>
+        <label class="modal-option">
+          <input type="radio" name="periodo" value="q2" />
+          <div>
+            <div class="modal-option-label" data-i18n="modal.q2_label">2do trimestre 2026</div>
+            <div class="modal-option-sub" data-i18n="modal.q2_sub">Abril, Mayo y Junio</div>
+          </div>
+        </label>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeModal()" data-i18n="modal.cancel">Cancelar</button>
+        <button class="btn btn-primary"   onclick="startDownload()">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          <span data-i18n="modal.download_btn">Descargar PDF</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Step 2: progreso de descarga -->
+    <div id="modal-download-content" style="display:none;text-align:center;padding:8px 0">
+      <div style="font-size:48px;margin-bottom:16px">📥</div>
+      <div class="modal-title" style="text-align:center" data-i18n="modal.generating">Generando tu resumen</div>
+      <div class="modal-desc"  style="text-align:center;margin-bottom:20px" data-i18n="modal.generating_desc">
+        Esto tarda unos segundos...
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill"></div>
+      </div>
+      <div class="progress-label" id="progress-label">Preparando datos...</div>
+    </div>
+
+    <!-- Step 3: confirmación -->
+    <div id="modal-done-content" style="display:none;text-align:center;padding:8px 0">
+      <div style="font-size:48px;margin-bottom:16px">✅</div>
+      <div class="modal-title" style="text-align:center" data-i18n="modal.done_title">¡Listo!</div>
+      <div class="modal-desc"  style="text-align:center" data-i18n="modal.done_desc">
+        Tu resumen fue descargado correctamente.
+        Lo podés encontrar en tu carpeta de Descargas.
+      </div>
+      <div class="modal-actions" style="justify-content:center">
+        <button class="btn btn-primary" onclick="closeModal()" data-i18n="modal.close">Cerrar</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<script src="js/app.js"></script>
+</body>
+</html>

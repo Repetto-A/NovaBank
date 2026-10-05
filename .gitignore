@@ -1,0 +1,15 @@
+# Dependencias y builds
+node_modules/
+.vercel/
+
+# Secretos y configuración local
+.env
+.env.*
+.claude/settings.local.json
+
+# Worktrees de los agentes (Claude Code los crea acá)
+.claude/worktrees/
+
+# Sistema
+.DS_Store
+Thumbs.db
