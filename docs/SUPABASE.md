@@ -28,8 +28,8 @@ const db = supabase.createClient(
 
 | Tabla | Qué guarda | Desde el frontend |
 |---|---|---|
-| `accounts` | alias, titular, iniciales, tipo (persona/comercio), saldo, color | leer |
-| `movements` | movimientos por cuenta (negativo = débito), categoría, ícono, fecha | leer |
+| `accounts` | `alias`, `holder_name`, `initials`, `kind` (persona/comercio), `balance`, `color` | leer |
+| `movements` | `account_id`, `amount` (negativo = débito), `description`, `category`, `icon`, `created_at` | leer |
 | `transfers` | **auditoría**: toda transferencia intentada, completada o rechazada, con motivo | leer |
 | `bank_rules` | máximo por transferencia, máximo diario, monto desde el que se pide confirmación extra | leer |
 | `v_transfers` | vista de `transfers` con alias y nombres de origen y destino | leer |

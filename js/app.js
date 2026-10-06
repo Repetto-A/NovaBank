@@ -378,7 +378,10 @@ function formatMovDate(iso) {
   const d = new Date(iso);
   if (isNaN(d)) return '';
   const tag = I18n.getLocale() === 'en' ? 'en-GB' : 'es-AR';
-  return d.toLocaleDateString(tag, { day: '2-digit', month: 'short' }).replace('.', '');
+  const parts = new Intl.DateTimeFormat(tag, { day: '2-digit', month: 'short' }).formatToParts(d);
+  const day   = (parts.find(p => p.type === 'day')   || {}).value || '';
+  const month = (parts.find(p => p.type === 'month') || {}).value || '';
+  return `${day} ${month.replace('.', '')}`.trim();
 }
 
 function getTodayLabel() {
