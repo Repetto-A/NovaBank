@@ -21,7 +21,7 @@ const LOCALES = {
     // Usuario
     'user.role':            'Caja de ahorro',
     // Dashboard
-    'dashboard.greeting':         'Buenos días, Diego 👋',
+    'dashboard.greeting':         'Buenos días, {name} 👋',
     'dashboard.balance_label':    'Saldo disponible · Caja de ahorro ARS',
     'dashboard.last_movement':    'Último movimiento:',
     'dashboard.recent_movements': 'Últimos movimientos',
@@ -30,6 +30,7 @@ const LOCALES = {
     'dashboard.card_limit':       'Límite disponible',
     'dashboard.card_status':      'Al día',
     'dashboard.active_promos':    'Promos activas',
+    'dashboard.no_movements':     'Todavía no hay movimientos en esta cuenta.',
     // Acciones rápidas
     'qa.consumos':    'Mis consumos',
     'qa.descargar':   'Descargar resumen',
@@ -62,6 +63,16 @@ const LOCALES = {
     'cat.transporte':      'Transporte',
     'cat.sueldo':          'Sueldo',
     'cat.tecnologia':      'Tecnología',
+    'cat.transferencias':  'Transferencias',
+    'cat.ventas':          'Ventas',
+    // Cuenta (elegir / cambiar / error)
+    'cuenta.pick_title':    'Elegí con qué cuenta entrar',
+    'cuenta.pick_subtitle': 'Es una demo: no hace falta contraseña.',
+    'cuenta.loading':       'Cargando tu cuenta...',
+    'cuenta.error_title':   'No pudimos cargar tus datos',
+    'cuenta.error_msg':     'Revisá tu conexión y volvé a intentar.',
+    'cuenta.retry':         'Reintentar',
+    'cuenta.switch':        'Cambiar de cuenta',
     // Beneficios
     'ben.title':                  'Beneficios exclusivos',
     'ben.subtitle':               'Descuentos y promos para vos por ser cliente NovaBanco',
@@ -112,7 +123,7 @@ const LOCALES = {
     // User
     'user.role':            'Savings account',
     // Dashboard
-    'dashboard.greeting':         'Good morning, Diego 👋',
+    'dashboard.greeting':         'Good morning, {name} 👋',
     'dashboard.balance_label':    'Available balance · Savings account ARS',
     'dashboard.last_movement':    'Last transaction:',
     'dashboard.recent_movements': 'Recent transactions',
@@ -121,6 +132,7 @@ const LOCALES = {
     'dashboard.card_limit':       'Available limit',
     'dashboard.card_status':      'Up to date',
     'dashboard.active_promos':    'Active promos',
+    'dashboard.no_movements':     'There are no transactions in this account yet.',
     // Quick actions
     'qa.consumos':    'My expenses',
     'qa.descargar':   'Download summary',
@@ -153,6 +165,16 @@ const LOCALES = {
     'cat.transporte':      'Transport',
     'cat.sueldo':          'Salary',
     'cat.tecnologia':      'Technology',
+    'cat.transferencias':  'Transfers',
+    'cat.ventas':          'Sales',
+    // Account (pick / switch / error)
+    'cuenta.pick_title':    'Choose which account to use',
+    'cuenta.pick_subtitle': 'This is a demo: no password needed.',
+    'cuenta.loading':       'Loading your account...',
+    'cuenta.error_title':   'We could not load your data',
+    'cuenta.error_msg':     'Check your connection and try again.',
+    'cuenta.retry':         'Retry',
+    'cuenta.switch':        'Switch account',
     // Benefits
     'ben.title':                  'Exclusive benefits',
     'ben.subtitle':               'Discounts and promos for you as a NovaBanco customer',
@@ -197,10 +219,12 @@ const I18n = (() => {
 
   let activeLocale = 'es';
 
-  function t(key) {
-    return (LOCALES[activeLocale] && LOCALES[activeLocale][key]) ||
-           LOCALES.es[key] ||
-           key;
+  function t(key, params) {
+    const text = (LOCALES[activeLocale] && LOCALES[activeLocale][key]) ||
+                 LOCALES.es[key] ||
+                 key;
+    if (!params) return text;
+    return text.replace(/\{(\w+)\}/g, (m, k) => (k in params ? params[k] : m));
   }
 
   function getLocale() { return activeLocale; }
@@ -254,33 +278,21 @@ const I18n = (() => {
 const DATA = {
 
   user: {
-    name:    'Diego García',
-    initials:'DG',
+    // name, initials y balance los llena Cuenta (js/features/cuenta.js) desde Supabase.
+    name:    '',
+    initials:'',
     account: 'Caja de ahorro',
-    balance: 1247890.32,
+    balance: 0,
     card: {
       last4:  '4821',
-      holder: 'DIEGO GARCÍA',
       expiry: '09/28',
       brand:  'VISA',
       limit:  850000,
     },
   },
 
-  movements: [
-    { id:1,  name:'Mercado Pago',    category:'Comidas',         date:'22 jun', amount: -12500,  icon:'🛵', color:'#00B4D8' },
-    { id:2,  name:'Sueldo NovaTech', category:'Sueldo',          date:'21 jun', amount:+450000,  icon:'💼', color:'#34C759' },
-    { id:3,  name:'Coto Digital',    category:'Supermercado',    date:'20 jun', amount: -8940,   icon:'🛒', color:'#FF9500' },
-    { id:4,  name:'Netflix',         category:'Entretenimiento', date:'18 jun', amount: -3200,   icon:'🎬', color:'#E50914' },
-    { id:5,  name:'Uber',            category:'Transporte',      date:'17 jun', amount: -1850,   icon:'🚗', color:'#333333' },
-    { id:6,  name:'Steam',           category:'Tecnología',      date:'15 jun', amount: -22000,  icon:'🎮', color:'#1b2838' },
-    { id:7,  name:'Farmacity',       category:'Supermercado',    date:'14 jun', amount: -4320,   icon:'💊', color:'#009688' },
-    { id:8,  name:'Rappi',           category:'Comidas',         date:'13 jun', amount: -7600,   icon:'🍔', color:'#FF441A' },
-    { id:9,  name:'Spotify',         category:'Entretenimiento', date:'11 jun', amount: -1790,   icon:'🎵', color:'#1DB954' },
-    { id:10, name:'YPF Combustible', category:'Transporte',      date:'10 jun', amount: -25200,  icon:'⛽', color:'#0066B3' },
-    { id:11, name:'Personal Flow',   category:'Entretenimiento', date:'08 jun', amount: -4200,   icon:'📺', color:'#E91E8C' },
-    { id:12, name:'La Anónima',      category:'Supermercado',    date:'05 jun', amount: -11300,  icon:'🛒', color:'#FF6B35' },
-  ],
+  // Cada item: { id, name, category, created_at, amount, icon, color } (lo arma Cuenta).
+  movements: [],
 
   beneficios: [
     {
@@ -349,6 +361,24 @@ function formatARS(amount) {
 
 function formatAmountSigned(amount) {
   return (amount < 0 ? '-' : '+') + formatARS(amount);
+}
+
+function escapeHTML(value) {
+  return String(value == null ? '' : value).replace(/[&<>"']/g, c => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+  }[c]));
+}
+
+function safeColor(value, fallback) {
+  return /^#[0-9a-fA-F]{6}$/.test(value) ? value : fallback;
+}
+
+// created_at (ISO) -> "22 jun" / "22 Jun" según el idioma activo
+function formatMovDate(iso) {
+  const d = new Date(iso);
+  if (isNaN(d)) return '';
+  const tag = I18n.getLocale() === 'en' ? 'en-GB' : 'es-AR';
+  return d.toLocaleDateString(tag, { day: '2-digit', month: 'short' }).replace('.', '');
 }
 
 function getTodayLabel() {
@@ -468,16 +498,42 @@ const Dashboard = (() => {
     if (el) el.textContent = formatARS(DATA.user.card.limit);
   }
 
+  function renderUser() {
+    const u = DATA.user;
+    const setText = (id, text) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = text;
+    };
+    setText('user-initials', u.initials);
+    setText('user-name', u.name);
+    setText('dashboard-greeting', I18n.t('dashboard.greeting', { name: u.name.split(' ')[0] }));
+    setText('tarjeta-holder', u.name.toUpperCase());
+
+    const last = DATA.movements[0];
+    const wrap = document.getElementById('last-movement');
+    if (wrap) {
+      wrap.hidden = !last;
+      setText('last-movement-text', last
+        ? `${formatMovDate(last.created_at)} — ${last.name} ${formatAmountSigned(last.amount)}`
+        : '');
+    }
+  }
+
   function renderRecentMovements() {
     const container = document.getElementById('recent-movements');
     if (!container) return;
 
+    if (DATA.movements.length === 0) {
+      container.innerHTML = `<p class="movement-empty">${escapeHTML(I18n.t('dashboard.no_movements'))}</p>`;
+      return;
+    }
+
     container.innerHTML = DATA.movements.slice(0, 5).map(m => `
       <div class="movement-item">
-        <div class="movement-icon" style="background:${m.color}22">${m.icon}</div>
+        <div class="movement-icon" style="background:${safeColor(m.color, '#8E8E93')}22">${escapeHTML(m.icon)}</div>
         <div class="movement-info">
-          <div class="movement-name">${m.name}</div>
-          <div class="movement-date">${m.category} · ${m.date}</div>
+          <div class="movement-name">${escapeHTML(m.name)}</div>
+          <div class="movement-date">${escapeHTML(m.category)} · ${escapeHTML(formatMovDate(m.created_at))}</div>
         </div>
         <div class="movement-amount ${m.amount < 0 ? 'debit' : 'credit'}">
           ${formatAmountSigned(m.amount)}
@@ -489,6 +545,7 @@ const Dashboard = (() => {
   function render() {
     const subtitleEl = document.getElementById('dashboard-date');
     if (subtitleEl) subtitleEl.textContent = getTodayLabel();
+    renderUser();
     renderBalance();
     renderTarjeta();
     renderRecentMovements();
@@ -535,11 +592,11 @@ const Movements = (() => {
     tbody.innerHTML = data.map(m => `
       <tr>
         <td class="tx-icon-cell">
-          <div class="tx-icon" style="background:${m.color}22">${m.icon}</div>
+          <div class="tx-icon" style="background:${safeColor(m.color, '#8E8E93')}22">${escapeHTML(m.icon)}</div>
         </td>
-        <td><div class="tx-name">${m.name}</div></td>
-        <td><span class="badge badge-info">${m.category}</span></td>
-        <td class="tx-date">${m.date}</td>
+        <td><div class="tx-name">${escapeHTML(m.name)}</div></td>
+        <td><span class="badge badge-info">${escapeHTML(m.category)}</span></td>
+        <td class="tx-date">${escapeHTML(formatMovDate(m.created_at))}</td>
         <td style="text-align:right">
           <span class="tx-amount ${m.amount < 0 ? 'debit' : 'credit'}">
             ${formatAmountSigned(m.amount)}
